@@ -3,17 +3,17 @@ pipeline {
     stages {
         stage('Version') {
             steps {
-                bat 'py --version'
+                bat 'python --version'
             }
         }
         stage('Execute stage 1') {
             steps {
-                bat 'py ip_print.py input1.json'
+                bat 'python ip_print.py input1.json'
             }
         }
         stage('Execute stage 2') {
             steps {
-                bat 'py ip_print.py input2.json'
+                bat 'python ip_print.py input2.json'
             }
         }
     }

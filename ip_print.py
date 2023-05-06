@@ -1,8 +1,14 @@
+'''This program accepts a json file as input and prints out the IP addresses, which are the values of
+all the keys inside the "value" object one per line. If the file also contains
+a "network" object, then you should also print out a second IP address on the same line
+that corresponds to the same "name".'''
+
 import sys
 import re
 import json
 
 
+# check if IP addrress is valid
 def validateIp(ip):
     if not isinstance(ip, str):
         return False
@@ -22,9 +28,9 @@ def main(jsonfile):
         with open(jsonfile, 'r') as ifil:
             contents = json.load(ifil)
     except FileNotFoundError:
-        raise Exception("Unable to find the file")
+        raise FileNotFoundError("Unable to find the file")
     except json.JSONDecodeError:
-        raise Exception("Unable to decode json file")
+        raise ValueError("Unable to decode json file")
 
     assert isinstance(contents, dict), "json should be of dictionary type"
     assert contents != {}, "Parsed json file is empty"
@@ -32,7 +38,7 @@ def main(jsonfile):
     ip_dict = {}
     value_dict = {}
 
-    assert "vm_private_ips" in contents, "vm_privage_ips key is not seen in JSON"
+    assert "vm_private_ips" in contents, "Missing required key: vm_private_ips for attributes in JSON"
     # assuming vm_private_ips is mandatory
     ip_dict = contents['vm_private_ips']
 
@@ -58,13 +64,16 @@ def main(jsonfile):
             ip = attribute_dict['access_ip_v4']
             assert validateIp(ip), f"Invalid IP address {ip} detected in the JSON file"
             name = attribute_dict['name']
+            assert name in value_dict.keys(), f"{name} not present in vm_private_ips sections"
             final_dict[name] = [value_dict[name], ip]
+
 
     else:
         final_dict = {key: [value] for key, value in value_dict.items()}
 
     for key, value in final_dict.items():
         print(" ".join(value))
+    return 0
 
 
 if __name__ == '__main__':
